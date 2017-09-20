@@ -1,14 +1,18 @@
 'use strict';
 
 const Command = use('cli/annotations/Command');
-const yargs = require('yargs');
 
 /**
  * @Service('manager.command')
  */
 module.exports = class CommandManager {
 
-  init() {
+  execute(args) {
+    this.getYargs(require('yargs')(args)).argv;
+  }
+
+  getYargs(yargs = null) {
+    if (yargs === null) yargs = require('yargs');
     const datas = boot.getDatas();
 
     for (const index in datas) {
@@ -16,7 +20,7 @@ module.exports = class CommandManager {
         new (use(datas[index].use()))(yargs);
       }
     }
-    yargs.help().argv;
+    return yargs.help();
   }
 
 }

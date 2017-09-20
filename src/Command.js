@@ -25,4 +25,8 @@ module.exports = class Command {
 
   execute(argv) { }
 
+  out() {
+    console.log.apply(console, arguments);
+  }
+
 }

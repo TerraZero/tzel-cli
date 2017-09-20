@@ -15,4 +15,4 @@ if (!tzel || !index) {
 require(path.join(process.cwd(), 'index.js'));
 
 const commands = use('manager.command');
-commands.init();
+commands.getYargs().argv;
