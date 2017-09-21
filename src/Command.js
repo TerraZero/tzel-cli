@@ -2,7 +2,9 @@
 
 module.exports = class Command {
 
-  constructor(yargs) {
+  constructor(yargs, io) {
+    this._io = io;
+
     yargs.command({
       command: this.command(),
       aliases: this.aliases(),
@@ -10,6 +12,7 @@ module.exports = class Command {
       builder: this.build.bind(this),
       handler: this.execute.bind(this),
     });
+
     this.init(yargs);
   }
 
@@ -25,8 +28,8 @@ module.exports = class Command {
 
   execute(argv) { }
 
-  out() {
-    console.log.apply(console, arguments);
+  io() {
+    return this._io;
   }
 
 }
