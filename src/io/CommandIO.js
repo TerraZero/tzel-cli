@@ -1,26 +1,12 @@
 'use strict';
 
+const Path = use('core/Path');
 const FS = require('graceful-fs');
-const Path = require('path');
 
 module.exports = class CommandIO {
 
   constructor() {
     this._quiet = false;
-    this._base = null;
-  }
-
-  _ensurePath(path, appendBase = true) {
-    if (Array.isArray(path)) {
-      if (appendBase) {
-        path.unshift(this.getBase());
-      }
-      return Path.join.apply(Path, path);
-    }
-    if (appendBase) {
-      return Path.join(this.getBase(), path);
-    }
-    return Path.normalize(path);
   }
 
   quiet(quiet = true) {
@@ -30,18 +16,6 @@ module.exports = class CommandIO {
 
   isQuiet() {
     return this._quiet;
-  }
-
-  base(path = null) {
-    this._base = Path.normalize(path);
-    return this;
-  }
-
-  getBase() {
-    if (this._base === null) {
-      return boot.setting('root');
-    }
-    return this._base;
   }
 
   nl(count = 1) {
@@ -77,47 +51,37 @@ module.exports = class CommandIO {
   }
 
   fsMkDirs(path) {
-    path = this._ensurePath(path, false);
-    const parts = path.split(Path.sep);
+    path = Path.create(path);
+    const parts = path.parts();
 
-    let p = this.getBase();
+    let p = path.root();
     for (const index in parts) {
       p = Path.join(p, parts[index]);
       if (!FS.existsSync(p)) {
         FS.mkdirSync(p);
-        this.out('[FS] mkdir ' + this.subpath(p));
+        this.out('[FS] mkdir ' + Path.create(p).subpath());
       }
     }
   }
 
   fsJson(path, value, overwrite = false) {
-    path = this._ensurePath(path);
-    if (overwrite || !FS.existsSync(path)) {
-      FS.writeFileSync(path, JSON.stringify(value, null, 2));
-      this.out('[FS] write json ' + this.subpath(path));
+    path = Path.create(path);
+    if (overwrite || !FS.existsSync(path.norm())) {
+      FS.writeFileSync(path.norm(), JSON.stringify(value, null, 2));
+      this.out('[FS] write json ' + path.subpath());
     }
     return this;
   }
 
   fsCopy(from, to, overwrite = false) {
-    from = this._ensurePath(from);
-    to = this._ensurePath(to);
+    from = Path.create(from);
+    to = Path.create(to);
 
-    if (overwrite || !FS.existsSync(from)) {
-      FS.createReadStream(from).pipe(FS.createWriteStream(to));
-      this.out('[FS] copy from ' + this.subpath(from) + ' to ' + this.subpath(to));
+    if (overwrite || !FS.existsSync(from.norm())) {
+      FS.createReadStream(from.norm()).pipe(FS.createWriteStream(to.norm()));
+      this.out('[FS] copy from ' + from.subpath() + ' to ' + to.subpath());
     }
     return this;
-  }
-
-  rel(path) {
-    path = Path.normalize(this._ensurePath(path, false));
-    return path.substring(Path.normalize(this.getBase()).length + 1);
-  }
-
-  subpath(path, rootPath = null) {
-    rootPath = rootPath || this.getBase();
-    return '"..' + path.substring(rootPath.length) + '"';
   }
 
 }
