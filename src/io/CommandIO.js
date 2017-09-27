@@ -56,10 +56,10 @@ module.exports = class CommandIO {
 
     let p = path.root();
     for (const index in parts) {
-      p = Path.join(p, parts[index]);
-      if (!FS.existsSync(p)) {
-        FS.mkdirSync(p);
-        this.out('[FS] mkdir ' + Path.create(p).subpath());
+      p = p.join(parts[index]);
+      if (!FS.existsSync(p.norm())) {
+        FS.mkdirSync(p.norm());
+        this.out('[FS] mkdir ' + p.path());
       }
     }
   }
@@ -68,7 +68,7 @@ module.exports = class CommandIO {
     path = Path.create(path);
     if (overwrite || !FS.existsSync(path.norm())) {
       FS.writeFileSync(path.norm(), JSON.stringify(value, null, 2));
-      this.out('[FS] write json ' + path.subpath());
+      this.out('[FS] write json ' + path.path());
     }
     return this;
   }
@@ -79,7 +79,7 @@ module.exports = class CommandIO {
 
     if (overwrite || !FS.existsSync(from.norm())) {
       FS.createReadStream(from.norm()).pipe(FS.createWriteStream(to.norm()));
-      this.out('[FS] copy from ' + from.subpath() + ' to ' + to.subpath());
+      this.out('[FS] copy from ' + from.path() + ' to ' + to.path());
     }
     return this;
   }
