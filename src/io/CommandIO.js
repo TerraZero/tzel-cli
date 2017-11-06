@@ -97,4 +97,24 @@ module.exports = class CommandIO {
     return this;
   }
 
+  fsClearDir(path) {
+    path = Path.create(path);
+    const norm = path.norm();
+
+    if (FS.existsSync(norm)) {
+      this.out('[FS] clear directory ' + path.path());
+      const files = FS.readdirSync(norm);
+
+      for (const index in files) {
+        if (!FS.lstatSync(norm + '/' + files[index]).isDirectory()) {
+          FS.unlinkSync(norm + '/' + files[index]);
+          this.out('[FS] delete file ' + path.join(files[index]).path());
+        } else {
+          this.out('[FS] delete only first level files can not delete directory ' + path.join(files[index]).path());
+        }
+      }
+    }
+    return this;
+  }
+
 }
