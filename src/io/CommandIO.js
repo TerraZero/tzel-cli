@@ -78,7 +78,7 @@ module.exports = class CommandIO {
     to = Path.create(to);
 
     if (overwrite || !FS.existsSync(to.norm())) {
-      FS.createReadStream(from.norm()).pipe(FS.createWriteStream(to.norm()));
+      FS.writeFileSync(to.norm(), FS.readFileSync(from.norm()));
       this.out('[FS] copy from ' + from.path() + ' to ' + to.path());
     }
     return this;
@@ -87,7 +87,7 @@ module.exports = class CommandIO {
   fsRead(from) {
     from = Path.create(from);
     this.out('[FS] read file ' + from.path());
-    return FS.readFileSync(from.norm()).toString();
+    return FS.readFileSync(from.norm(), ).toString();
   }
 
   fsWrite(to, content) {
