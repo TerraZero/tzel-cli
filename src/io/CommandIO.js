@@ -50,6 +50,11 @@ module.exports = class CommandIO {
     return this;
   }
 
+  fsExists(path) {
+    path = Path.create(path);
+    return FS.existsSync(path.norm());
+  }
+
   fsMkDirs(path) {
     path = Path.create(path);
     const parts = path.parts();
@@ -77,7 +82,7 @@ module.exports = class CommandIO {
     from = Path.create(from);
     to = Path.create(to);
 
-    if (overwrite || !FS.existsSync(to.norm())) {
+    if (overwrite || !this.fsExists(to)) {
       FS.writeFileSync(to.norm(), FS.readFileSync(from.norm()));
       this.out('[FS] copy from ' + from.path() + ' to ' + to.path());
     }
@@ -94,6 +99,13 @@ module.exports = class CommandIO {
     to = Path.create(to);
     this.out('[FS] write file ' + to.path());
     FS.writeFileSync(to.norm(), content);
+    return this;
+  }
+
+  fsWriteJSON(to, json) {
+    to = Path.create(to);
+    this.out('[FS] write JSON file ' + to.path());
+    FS.writeFileSync(to.norm(), JSON.stringify(json, null, 2));
     return this;
   }
 
