@@ -6,6 +6,6 @@ module.exports = class Command extends Annotation.class {
 
   static get targets() { return [this.DEFINITION] }
 
-  static get tag() { return true; }
+  static get extendable() { return false }
 
 };

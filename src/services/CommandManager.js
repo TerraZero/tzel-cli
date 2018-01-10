@@ -1,7 +1,7 @@
 'use strict';
 
-const Command = use('cli/annotations/Command');
 const CommandIO = use('cli/io/CommandIO');
+const Manifest = use('core/reflect/Manifest');
 
 /**
  * @Service('manager.command')
@@ -15,12 +15,10 @@ module.exports = class CommandManager {
   getYargs(yargs = null, io = null) {
     if (yargs === null) yargs = require('yargs');
     if (io === null) io = new CommandIO();
-    const datas = boot.getDatas();
+    const commands = Manifest.getRegister('provider.command', 'commands');
 
-    for (const index in datas) {
-      if (datas[index].hasTag(Command.name)) {
-        new (use(datas[index].use()))(yargs, io);
-      }
+    for (const key of commands) {
+      new (use(key))(yargs, io);
     }
 
     const that = this;
